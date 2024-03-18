@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffee Break ☕️</title>
+    <link rel="icon" type="image/png" href="img/coffee2.png">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #BB8FCE;
+            color: #4e2700;
+            margin: 0;
+            padding: 20px;
+            font-weight: 600;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        img {
+            display: block;
+            margin: 0 auto;
+        }
+        h1 {
+            margin-bottom: 10px;
+            font-size: 36px;
+            font-style: italic;
+        }
+        .font-option {
+            margin-bottom: 20px;
+        }
+        .no-sleep {
+            display: flex;
+            margin-top: 10px;
+            justify-content: center;
+            align-items: center;
+        }
+        .no-sleep>label {
+            margin-right: 5px;
+        }
+        .no-sleep>input {
+            width: 20px;
+            height: 20px;
+            accent-color: green;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="img/coffee.png" alt="Coffee Cup">        
+        <h1 class="font-option" style="font-family: 'Courier New', monospace;">Coffee Break</h1>
+    </div>
+
+    <div class="no-sleep">
+        <label for="toggleSleep">Prevent Sleep Mode</label>
+        <input type="checkbox" id="toggleSleep" onchange="toggleSleepLock(this.checked)">
+    </div>
+
+    <script>
+        let sleepLockInterval;
+
+        function toggleSleepLock(checked) {
+            if (checked) {
+                sleepLockInterval = setInterval(preventSleep, 30000); // Block sleep every 30 seconds
+            } else {
+                clearInterval(sleepLockInterval); // Clear interval when turning off
+                releaseSleep();
+            }
+        }
+
+        function preventSleep() {
+            if ('wakeLock' in navigator) {
+                navigator.wakeLock.request('screen')
+                    .then(() => {
+                        console.log('Screen Wake Lock is active');
+                    })
+                    .catch((err) => {
+                        console.error(`Error: ${err}`);
+                    });
+            } else {
+                console.error('Wake Lock API is not supported');
+            }
+        }
+
+        function releaseSleep() {
+            if ('wakeLock' in navigator) {
+                navigator.wakeLock.release()
+                    .then(() => {
+                        console.log('Screen Wake Lock has been released');
+                    })
+                    .catch((err) => {
+                        console.error(`Error: ${err}`);
+                    });
+            } else {
+                console.error('Wake Lock API is not supported');
+            }
+        }
+    </script>
+</body>
+</html>
