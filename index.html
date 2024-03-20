@@ -22,14 +22,25 @@
             width: 68%;
             display: block;
             margin: 0 auto;
-        }        
-        .font-option {
-            margin-top: 0;
-            margin-bottom: 20px;
-            font-size: 36px;
-            font-style: italic;
         }
-                
+        
+        .font-option {
+            margin-bottom: 20px;
+        }
+        .no-sleep {
+            display: flex;
+            margin-top: 10px;
+            justify-content: center;
+            align-items: center;
+        }
+        .no-sleep>label {
+            margin-right: 5px;
+        }
+        .no-sleep>input {
+            width: 20px;
+            height: 20px;
+            accent-color: green;
+        }
         #clock {
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
             font-size: 4em;
@@ -42,32 +53,76 @@
 </head>
 <body>
     <div class="header">
-        <img src="img/coffee_friends_3.png" alt="Coffee Cup">
-        <h1 class="font-option" style="font-family: 'Courier New', monospace;">Coffee Break</h1> 
-        <div id="clock"></div>
+        <img src="img/coffee_friends_3.png" alt="Coffee Cup">   
+            <div id="clock"></div>
      
     </div>
 
+    <div class="no-sleep">
+        <label for="toggleSleep">Prevent Sleep Mode</label>
+        <input type="checkbox" id="toggleSleep" onchange="toggleSleepLock(this.checked)">
+    </div>
+
+
     <script>
-        function updateTime() {
-                var now = new Date();
-                var hours = now.getHours();
-                var minutes = now.getMinutes();
-                var seconds = now.getSeconds();
+        let sleepLockInterval;
 
-                hours = (hours < 10) ? "0" + hours : hours;
-                minutes = (minutes < 10) ? "0" + minutes : minutes;
-                seconds = (seconds < 10) ? "0" + seconds : seconds;
-
-                var timeString = hours + ":" + minutes + ":" + seconds;
-
-                document.getElementById("clock").innerText = timeString;
+        function toggleSleepLock(checked) {
+            if (checked) {
+                sleepLockInterval = setInterval(preventSleep, 30000); // Block sleep every 30 seconds
+            } else {
+                clearInterval(sleepLockInterval); // Clear interval when turning off
+                releaseSleep();
+            }
         }
 
-                // Обновление времени каждую секунду
-                setInterval(updateTime, 1000);
+        function preventSleep() {
+            if ('wakeLock' in navigator) {
+                navigator.wakeLock.request('screen')
+                    .then(() => {
+                        console.log('Screen Wake Lock is active');
+                    })
+                    .catch((err) => {
+                        console.error(`Error: ${err}`);
+                    });
+            } else {
+                console.error('Wake Lock API is not supported');
+            }
+        }
 
-                updateTime();
+        function releaseSleep() {
+            if ('wakeLock' in navigator) {
+                navigator.wakeLock.release()
+                    .then(() => {
+                        console.log('Screen Wake Lock has been released');
+                    })
+                    .catch((err) => {
+                        console.error(`Error: ${err}`);
+                    });
+            } else {
+                console.error('Wake Lock API is not supported');
+            }
+        }
+        function updateTime() {
+  var now = new Date();
+  var hours = now.getHours();
+  var minutes = now.getMinutes();
+  var seconds = now.getSeconds();
+
+  hours = (hours < 10) ? "0" + hours : hours;
+  minutes = (minutes < 10) ? "0" + minutes : minutes;
+  seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+  var timeString = hours + ":" + minutes + ":" + seconds;
+
+  document.getElementById("clock").innerText = timeString;
+}
+
+// Обновление времени каждую секунду
+setInterval(updateTime, 1000);
+
+// Запускаем функцию сразу, чтобы сразу отобразить время
+updateTime();
     </script>
 </body>
 </html>
